@@ -1124,15 +1124,11 @@
                 const targetElement = targetDoc().getElementById(targetWidthId);
                 if (targetElement) {
                     // 【修复1】延伸宽度不得越出宿主视口（移动端原来会拉到比屏幕还宽，看着像"斜着飘出来"）
-                    const right = Math.min(targetElement.getBoundingClientRect().right, (pv.innerWidth || 0) - 8);
+                    const right = Math.min(targetElement.getBoundingClientRect().right -8, (pv.innerWidth || 0) - 8);
                     if (right - rect.left > finalWidth) finalWidth = right - rect.left;
                 }
             }
         }
-
-        container.style.width = `${finalWidth}px`;
-        container.style.height = `${rect.height}px`;
-
         const TOP_BOUNDARY_ID = 'top-settings-holder';
         const BOTTOM_BOUNDARY_ID = 'send_form';
         const BOUNDARY_MARGIN = 10;
