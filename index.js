@@ -1113,24 +1113,31 @@
         
         const rect = positionSource.getBoundingClientRect();
         const pv = parentView();   // 【修复1】宿主窗口：视口尺寸与滚动量都必须取自它
+        // 预设下拉面板独立计算宽度：
+        // 左边缘严格跟随预设选择器；右边缘对齐左侧导航面板的内侧边界，
+        // 并额外留出 12px，避免面板压过右侧竖线。
         let finalWidth = rect.width;
+        const targetWidthId = WIDTH_TARGETS[originalSelect.id];
 
         if (originalSelect.id === 'qr--set' && isMobile()) {
-            const targetEditor = targetDoc().querySelector("#qr--editor");
-            if (targetEditor) finalWidth = targetEditor.getBoundingClientRect().right - rect.left;
-        } else {
-            const targetWidthId = WIDTH_TARGETS[originalSelect.id];
-            if (targetWidthId) {
-                const targetElement = targetDoc().getElementById(targetWidthId);
-                if (targetElement) {
-                    // 【修复1】延伸宽度不得越出宿主视口（移动端原来会拉到比屏幕还宽，看着像"斜着飘出来"）
-                    const right = Math.min(targetElement.getBoundingClientRect().right, (pv.innerWidth || 0) - 8);
-                    if (right - rect.left > finalWidth) {
-    finalWidth = right - rect.left - 20;
-}
-                }
+            const targetEditor = targetDoc().querySelector('#qr--editor');
+            if (targetEditor) {
+                finalWidth = targetEditor.getBoundingClientRect().right - rect.left;
+            }
+        } else if (targetWidthId) {
+            const targetElement = targetDoc().getElementById(targetWidthId);
+            if (targetElement) {
+                const panelRect = targetElement.getBoundingClientRect();
+                const viewportRight = (pv.innerWidth || 0) - 8;
+                const panelRight = Math.min(panelRect.right - 12, viewportRight);
+                finalWidth = Math.max(rect.width, panelRight - rect.left);
             }
         }
+
+        container.style.width = `${finalWidth}px`;
+        container.style.height = `${rect.height}px`;
+        container.style.boxSizing = 'border-box';
+
         const TOP_BOUNDARY_ID = 'top-settings-holder';
         const BOTTOM_BOUNDARY_ID = 'send_form';
         const BOUNDARY_MARGIN = 10;
