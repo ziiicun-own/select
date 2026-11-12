@@ -1123,7 +1123,7 @@
             const targetElement = targetDoc().getElementById(targetWidthId);
             if (targetElement) {
                 const panelRect = targetElement.getBoundingClientRect();
-                finalLeft = panelRect.left + (panelRect.width - finalWidth) / 2 - 12;
+                finalLeft = panelRect.left + (panelRect.width - finalWidth) / 2;
             }
         }
 
