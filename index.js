@@ -1113,18 +1113,18 @@
         
         const rect = positionSource.getBoundingClientRect();
         const pv = parentView();   // 【修复1】宿主窗口：视口尺寸与滚动量都必须取自它
-        // 预设下拉面板保持原始宽度，只在左侧导航面板范围内水平居中。
-        // 不改变面板尺寸，也不再让左边缘跟随预设选择器。
-        const finalWidth = rect.width;
-        let finalLeft = rect.left;
+        // 预设下拉面板：以宿主页面可视区为基准居中，避免左侧面板自身的
+        // padding / transform / 内部偏移导致左右留白不一致。
+        // 保留原始宽度；若屏幕过窄，则限制在视口宽度以内。
         const targetWidthId = WIDTH_TARGETS[originalSelect.id];
+        const viewportWidth = pv.innerWidth || targetDoc().documentElement.clientWidth || rect.width;
+        const finalWidth = targetWidthId
+            ? Math.min(rect.width, Math.max(240, viewportWidth - 24))
+            : rect.width;
+        let finalLeft = rect.left;
 
         if (targetWidthId) {
-            const targetElement = targetDoc().getElementById(targetWidthId);
-            if (targetElement) {
-                const panelRect = targetElement.getBoundingClientRect();
-                finalLeft = panelRect.left + (panelRect.width - finalWidth) / 2;
-            }
+            finalLeft = Math.max(12, (viewportWidth - finalWidth) / 2);
         }
 
         container.style.width = `${finalWidth}px`;
