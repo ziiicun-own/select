@@ -1113,24 +1113,17 @@
         
         const rect = positionSource.getBoundingClientRect();
         const pv = parentView();   // 【修复1】宿主窗口：视口尺寸与滚动量都必须取自它
-        // 预设下拉面板独立计算宽度：
-        // 左边缘严格跟随预设选择器；右边缘对齐左侧导航面板的内侧边界，
-        // 并额外留出 12px，避免面板压过右侧竖线。
-        let finalWidth = rect.width;
+        // 预设下拉面板保持原始宽度，只在左侧导航面板范围内水平居中。
+        // 不改变面板尺寸，也不再让左边缘跟随预设选择器。
+        const finalWidth = rect.width;
+        let finalLeft = rect.left;
         const targetWidthId = WIDTH_TARGETS[originalSelect.id];
 
-        if (originalSelect.id === 'qr--set' && isMobile()) {
-            const targetEditor = targetDoc().querySelector('#qr--editor');
-            if (targetEditor) {
-                finalWidth = targetEditor.getBoundingClientRect().right - rect.left;
-            }
-        } else if (targetWidthId) {
+        if (targetWidthId) {
             const targetElement = targetDoc().getElementById(targetWidthId);
             if (targetElement) {
                 const panelRect = targetElement.getBoundingClientRect();
-                const viewportRight = (pv.innerWidth || 0) - 8;
-                const panelRight = Math.min(panelRect.right - 12, viewportRight);
-                finalWidth = Math.max(rect.width, panelRight - rect.left);
+                finalLeft = panelRect.left + (panelRect.width - finalWidth) / 2;
             }
         }
 
@@ -1188,7 +1181,7 @@
             const scrollContainer = parentDialog.querySelector('.popup-body') || parentDialog;
             const parentRect = parentDialog.getBoundingClientRect();
             container.style.top = `${rect.top - parentRect.top + scrollContainer.scrollTop}px`;
-            container.style.left = `${rect.left - parentRect.left + scrollContainer.scrollLeft}px`;
+            container.style.left = `${finalLeft - parentRect.left + scrollContainer.scrollLeft}px`;
         } else {
             // 【修复1】换算成宿主文档坐标：原来用的 window.scrollY 是脚本 iframe 的（恒为 0），
             // 宿主页面一滚动面板就整体偏移（实测偏移量正好等于宿主滚动量，移动端尤其明显）。
@@ -1196,7 +1189,7 @@
             const scrollX = (typeof pv.scrollX === 'number') ? pv.scrollX : (docEl.scrollLeft || 0);
             const scrollY = (typeof pv.scrollY === 'number') ? pv.scrollY : (docEl.scrollTop || 0);
             container.style.top = `${rect.top + scrollY}px`;
-            container.style.left = `${rect.left + scrollX}px`;
+            container.style.left = `${finalLeft + scrollX}px`;
         }
 
         container.appendChild(optionsList);
