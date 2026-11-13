@@ -1119,10 +1119,17 @@
         const targetWidthId = WIDTH_TARGETS[originalSelect.id];
         const viewportWidth = pv.innerWidth || targetDoc().documentElement.clientWidth || rect.width;
         
-// 预设下拉面板以手机屏幕可视区域为基准水平居中。
-// 保留原始宽度；屏幕空间不足时自动缩窄，左右各留 12px。
-const targetWidthId = WIDTH_TARGETS[originalSelect.id];
-const viewportWidth = pv.innerWidth || targetDoc().documentElement.clientWidth || rect.width;
+        // 预设下拉面板以手机屏幕可视区域为基准水平居中
+        // 保留原始宽度，只调整水平位置
+        const targetWidthId = WIDTH_TARGETS[originalSelect.id];
+        const viewportWidth = pv.innerWidth || targetDoc().documentElement.clientWidth || rect.width;
+
+        let finalWidth = rect.width;
+        let finalLeft = rect.left;
+
+        if (targetWidthId) {
+            finalLeft = (viewportWidth - finalWidth) / 2;
+        }
 
 let finalWidth = rect.width;
 let finalLeft = rect.left;
